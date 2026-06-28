@@ -13,27 +13,26 @@ class handler(BaseHTTPRequestHandler):
         user_message = data.get("message", "").strip()
         audio_data = data.get("audioData", None)
         
-        # 1. Immediate response fallback for voice inputs
+        # 1. Immediate fallback for mic input
         if audio_data:
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({
-                "reply": "🎙️ *[Audio Input Received]*: Let's discuss your thermodynamics query! Could you specify if you are calculating work ($W$), heat ($Q$), or internal energy ($\Delta U$)?"
+                "reply": "🎙️ *[Audio Received]*: Let's calculate the First Law of Thermodynamics ($Q - W = \Delta U$). What parameters are we evaluating?"
             }).encode())
             return
 
-        # 2. Prevent empty text submission errors
+        # 2. Prevent empty submission errors 
         if not user_message:
-            user_message = "Hello! Please explain the First Law of Thermodynamics."
+            user_message = "Hello! Tell me about the First Law of Thermodynamics."
 
-        # Read the environment variable named 'api' from your Vercel configurations
         api_key = os.environ.get("api")
         if not api_key:
             self.send_response(500)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({"error": "Groq API key configuration missing on Vercel environment variables."}).encode())
+            self.wfile.write(json.dumps({"error": "Groq API key missing on Vercel."}).encode())
             return
 
         url = "https://api.groq.com/openai/v1/chat/completions"
@@ -43,20 +42,19 @@ class handler(BaseHTTPRequestHandler):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
 
-        # Crucial Fix: Enforce a strict content payload structure so it behaves natively
         payload = {
             "model": "llama-3.1-8b-instant",
             "messages": [
                 {
                     "role": "system", 
-                    "content": "You are KELVIN, a concise engineering AI assistant for thermodynamics. Do not output introduction templates, menus, list options, or setup examples. Answer the user's query directly and briefly using precise Markdown text."
+                    "content": "You are KELVIN, a precise AI specialized in Thermodynamics. Answer the user's explicit question directly. Never print setup menus, multiple-choice lists, introduction options, or text templates. Use clear Markdown notation."
                 },
                 {
                     "role": "user",
                     "content": user_message
                 }
             ],
-            "temperature": 0.3 # Low temperature makes the model stick tightly to the direct answer rather than rambling
+            "temperature": 0.2
         }
 
         try:
@@ -80,4 +78,4 @@ class handler(BaseHTTPRequestHandler):
             self.send_response(500)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({"error": f"Internal Server Error: {str(e)}"}).encode())
+            self.wfile.write(json.dumps({"error": f"Internal Error: {str(e)}"}).encode())

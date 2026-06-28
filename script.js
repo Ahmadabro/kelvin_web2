@@ -11,7 +11,6 @@ document.getElementById('imageInput').addEventListener('change', handleImageSele
 document.getElementById('removeImgBtn').addEventListener('click', removeAttachedImage);
 document.getElementById('micBtn').addEventListener('click', toggleAudioRecording);
 
-// Handle Local File System Selection
 function handleImageSelection(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -31,13 +30,12 @@ function removeAttachedImage() {
     document.getElementById('imagePreviewContainer').classList.add('hidden');
 }
 
-// Media Recording Pipeline
 async function toggleAudioRecording() {
     const micBtn = document.getElementById('micBtn');
     
     if (!isRecording) {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            alert("Audio capturing is not supported on your current web environment browser.");
+            alert("Audio capturing is not supported on your browser.");
             return;
         }
         try {
@@ -48,21 +46,20 @@ async function toggleAudioRecording() {
             mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
             mediaRecorder.onstop = async () => {
                 const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                // Convert audio to base64 string to safely forward via json standard request
                 const reader = new FileReader();
                 reader.onloadend = async () => {
                     const base64Audio = reader.result.split(',')[1];
                     await sendAudioToServer(base64Audio);
                 };
                 reader.readAsDataURL(audioBlob);
-                stream.getTracks().forEach(track => track.stop()); // Release mic hardware
+                stream.getTracks().forEach(track => track.stop());
             };
 
             mediaRecorder.start();
             isRecording = true;
             micBtn.classList.add('recording-active');
         } catch (err) {
-            console.error("Microphone capture access denied:", err);
+            console.error("Microphone access denied:", err);
         }
     } else {
         mediaRecorder.stop();
@@ -76,7 +73,6 @@ async function sendAudioToServer(base64Audio) {
     const loadingMessage = appendMessage("Transcribing audio...", 'ai-message', false);
     
     try {
-        // FIXED: Changed endpoint route path from '/api/chat' to unified '/api'
         const response = await fetch('/api', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -86,8 +82,6 @@ async function sendAudioToServer(base64Audio) {
         loadingMessage.remove();
 
         if (response.ok) {
-            // Put transcribed speech text straight into the prompt field for clarity
-            // If using the placeholder mock string, it appends the message instead
             if (data.reply) {
                 const aiDiv = document.createElement('div');
                 aiDiv.className = 'message ai-message';
@@ -97,10 +91,10 @@ async function sendAudioToServer(base64Audio) {
                 document.getElementById('userInput').value = data.transcription || "";
             }
         } else {
-            appendMessage(`⚠️ Audio Transcription Error: ${data.error}`, 'ai-message', false);
+            appendMessage(`⚠️ Audio Error: ${data.error}`, 'ai-message', false);
         }
     } catch (e) {
-        loadingMessage.remove();
+        if (loadingMessage) loadingMessage.remove();
         console.error(e);
     }
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -113,7 +107,6 @@ async function sendMessage() {
 
     if (!messageText && !activeBase64Image) return;
 
-    // Build user view interface component
     const msgDiv = document.createElement('div');
     msgDiv.className = 'message user-message';
     if (activeBase64Image) {
@@ -128,7 +121,6 @@ async function sendMessage() {
     }
     chatBox.appendChild(msgDiv);
     
-    // Save image instance to send, then clear input bar UI components immediately
     const imageToSend = activeBase64Image;
     inputEl.value = '';
     removeAttachedImage();
@@ -158,7 +150,7 @@ async function sendMessage() {
             appendMessage(`⚠️ Error: ${data.error}`, 'ai-message', false);
         }
     } catch (error) {
-        indicator.remove();
+        if (indicator) indicator.remove();
         console.error(error);
     }
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -172,3 +164,15 @@ function appendMessage(text, className, useMarkdown) {
     chatBox.appendChild(msgDiv);
     return msgDiv;
 }
+
+// Clear old stuck elements on reload
+window.addEventListener('DOMContentLoaded', () => {
+    const chatBox = document.getElementById('chatBox');
+    if (chatBox) {
+        const defaultGreeting = chatBox.firstElementChild;
+        chatBox.innerHTML = '';
+        if (defaultGreeting && defaultGreeting.textContent.includes("Multimodal Thermodynamics assistant")) {
+            chatBox.appendChild(defaultGreeting);
+        }
+    }
+});
