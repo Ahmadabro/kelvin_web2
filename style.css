@@ -8,8 +8,8 @@
     --text-main: #f8fafc;
     --text-muted: #64748b;
     --user-msg: #1d4ed8;
-    --ai-msg: rgba(30, 41, 59, 0.5);
-    --input-bg: rgba(15, 23, 42, 0.7);
+    --ai-msg: rgba(30, 41, 59, 0.4);
+    --input-bg: rgba(15, 23, 42, 0.6);
 }
 
 * {
@@ -17,6 +17,7 @@
     margin: 0;
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -68,7 +69,7 @@ body {
     z-index: 2;
 }
 
-/* Clean, Balanced Top Navigation Bar */
+/* Top Navigation Bar */
 header {
     padding: 18px 40px;
     background: rgba(9, 13, 22, 0.4);
@@ -113,7 +114,6 @@ header p {
     align-items: center;
     gap: 8px;
     font-weight: 600;
-    letter-spacing: 0.02em;
 }
 .status-dot {
     width: 6px;
@@ -123,21 +123,15 @@ header p {
     box-shadow: 0 0 10px #22c55e;
 }
 
-/* Expanded Full-Width Chat Timeline */
+/* Chat Timeline Container */
 .chat-box {
     flex: 1;
-    padding: 40px 15%; /* Extra left/right margins creates a premium desktop reading view */
+    padding: 40px 20%;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 24px;
 }
-
-/* Adaptive Responsiveness for Smaller Screen Monitors */
-@media (max-width: 1024px) {
-    .chat-box { padding: 30px 5%; }
-}
-
 .chat-box::-webkit-scrollbar {
     width: 5px;
 }
@@ -146,9 +140,9 @@ header p {
     border-radius: 10px;
 }
 
-/* Smooth Physics Animation for Elements */
+/* Physics-Based Message Entry Animation */
 .message {
-    max-width: 80%;
+    max-width: 75%;
     padding: 16px 24px;
     border-radius: 20px;
     line-height: 1.65;
@@ -171,7 +165,18 @@ header p {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Rendered Text Typography Details */
+/* Rendered Embedded Images */
+.chat-msg-img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    display: block;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    object-fit: contain;
+}
+
+/* Typography Corrections */
 .ai-message p { margin-bottom: 12px; }
 .ai-message p:last-child { margin-bottom: 0; }
 .ai-message ul, .ai-message ol { margin-left: 22px; margin-bottom: 12px; }
@@ -180,12 +185,136 @@ header p {
     background: rgba(0, 0, 0, 0.4); 
     padding: 3px 7px; 
     border-radius: 6px; 
-    font-family: 'Fira Code', Consolas, Monaco, monospace; 
+    font-family: monospace; 
     font-size: 0.9em;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Sleek Wave Indicator */
+/* Glassmorphic Media Upload Preview Row */
+.preview-container {
+    padding: 10px 20%;
+    background: rgba(9, 13, 22, 0.2);
+    display: flex;
+    animation: slideFadeIn 0.2s ease-out;
+}
+.preview-wrapper {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.preview-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.remove-btn {
+    position: absolute;
+    top: 4px; right: 4px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    color: white; border: none;
+    border-radius: 50%; width: 18px; height: 18px;
+    cursor: pointer; display: flex; justify-content: center; align-items: center; 
+    font-size: 11px; font-weight: bold; transition: background 0.2s;
+}
+.remove-btn:hover {
+    background: #ef4444;
+}
+
+/* Centered Console Console Panel */
+.input-area {
+    padding: 30px 20%;
+    background: linear-gradient(to top, rgba(7, 10, 18, 0.8), transparent);
+}
+.input-wrapper {
+    display: flex;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 8px 12px;
+    align-items: center;
+    gap: 8px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+.input-wrapper:focus-within {
+    border-color: rgba(255, 107, 0, 0.4);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1), 0 10px 30px rgba(0, 0, 0, 0.25);
+    background-color: rgba(15, 23, 42, 0.85);
+}
+#userInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-size: 1rem;
+    outline: none;
+    padding: 10px 4px;
+}
+#userInput::placeholder {
+    color: rgba(148, 163, 184, 0.4);
+}
+
+/* Glass Interactive Buttons */
+.icon-action-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: color 0.2s, background-color 0.2s, transform 0.2s;
+}
+.icon-action-btn:hover {
+    color: var(--text-main);
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: scale(1.02);
+}
+.icon-action-btn:active {
+    transform: scale(0.98);
+}
+
+/* Pulsing Recording Mode CSS */
+.recording-active {
+    color: #ef4444 !important;
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    animation: pulseRed 1.8s infinite ease-in-out;
+}
+
+/* Command Trigger Send Action button */
+#sendBtn {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s;
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.2);
+    margin-left: 4px;
+}
+#sendBtn:hover {
+    transform: scale(1.05);
+    opacity: 0.95;
+}
+#sendBtn:active {
+    transform: scale(0.96);
+}
+
+/* Loading Wave Typography Elements */
 .typing-indicator {
     display: flex;
     gap: 5px;
@@ -207,75 +336,33 @@ header p {
 .typing-indicator span:nth-child(2) { animation-delay: 0.16s; }
 .typing-indicator span:nth-child(3) { animation-delay: 0.32s; }
 
-/* Centered Floating Console Box for Input */
-.input-area {
-    padding: 30px 15%;
-    background: linear-gradient(to top, rgba(7, 10, 18, 0.8), transparent);
-}
+.hidden { display: none !important; }
+
+/* Responsive Mobile Configurations */
 @media (max-width: 1024px) {
-    .input-area { padding: 20px 5%; }
-}
-.input-wrapper {
-    display: flex;
-    background: var(--input-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 8px 10px 8px 24px;
-    align-items: center;
-    transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-.input-wrapper:focus-within {
-    border-color: rgba(255, 107, 0, 0.4);
-    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1), 0 10px 30px rgba(0, 0, 0, 0.25);
-    background-color: rgba(15, 23, 42, 0.85);
-}
-#userInput {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: var(--text-main);
-    font-size: 1rem;
-    outline: none;
-    padding: 12px 0;
-}
-#userInput::placeholder {
-    color: rgba(148, 163, 184, 0.45);
+    .chat-box, .input-area, .preview-container { padding-left: 5%; padding-right: 5%; }
+    header { padding: 14px 24px; }
+    .message { max-width: 88%; }
 }
 
-/* Icon Send Button */
-#sendBtn {
-    background: var(--primary-gradient);
-    color: white;
-    border: none;
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s;
-    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.2);
-}
-#sendBtn:hover {
-    transform: scale(1.06);
-    opacity: 0.95;
-}
-#sendBtn:active {
-    transform: scale(0.96);
-}
-
-/* Animations Layout */
+/* Core Animations Suite */
 @keyframes springUp {
-    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    from { opacity: 0; transform: translateY(18px) scale(0.98); }
     to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes slideFadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 @keyframes smoothPulse {
     from { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255,107,0,0.4)); }
-    to { transform: scale(1.06); filter: drop-shadow(0 0 10px rgba(255,107,0,0.7)); }
+    to { transform: scale(1.05); filter: drop-shadow(0 0 10px rgba(255,107,0,0.6)); }
 }
 @keyframes waveMotion {
     0%, 60%, 100% { transform: translateY(0); }
     30% { transform: translateY(-5px); }
+}
+@keyframes pulseRed {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
 }
