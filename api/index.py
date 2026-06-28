@@ -24,7 +24,6 @@ class handler(BaseHTTPRequestHandler):
         # Direct official Groq Cloud operational endpoint
         url = "https://api.groq.com/openai/v1/chat/completions"
         
-        # FIX FOR 1010: Inject standard browser User-Agent headers to bypass automated platform blocking
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
@@ -34,7 +33,8 @@ class handler(BaseHTTPRequestHandler):
         user_content = user_message if user_message else "Hello!"
 
         payload = {
-            "model": "llama3-8b-8192",
+            # FIX: Updated to Groq's active, supported production model version
+            "model": "llama-3.1-8b-instant",
             "messages": [
                 {
                     "role": "system", 
