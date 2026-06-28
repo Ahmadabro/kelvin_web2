@@ -18,45 +18,36 @@ class handler(BaseHTTPRequestHandler):
             self.send_response(500)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({"error": "Grok key configuration missing on Vercel environment variables."}).encode())
+            self.wfile.write(json.dumps({"error": "Groq API key configuration missing on Vercel environment variables."}).encode())
             return
 
-        url = "https://api.x.ai/v1/chat/completions"
+        # Point directly to Groq's official developer cloud endpoint
+        url = "https://api.groq.com/openai/v1/chat/completions"
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
         
-        # Build a safe array-based content structural map that Grok accepts cleanly
+        # Build Groq-compliant content payload
+        # Note: Groq supports text prompts universally. (If using vision models later, use llama-3.2-11b-vision-preview)
         content_payload = []
-        
         if user_message:
             content_payload.append({"type": "text", "text": user_message})
-            
-        if image_data:
-            if "," in image_data:
-                image_data = image_data.split(",")[1]
-            content_payload.append({
-                "type": "image_url",
-                "image_url": {
-                    "url": f"data:image/jpeg;base64,{image_data}"
-                }
-            })
-            
-        # Fallback if both are empty strings
+        
         if not content_payload:
             content_payload.append({"type": "text", "text": "Hello!"})
 
         payload = {
-            "model": "grok-beta",
+            # Utilizing Groq's blazing fast flagship production model
+            "model": "llama3-8b-8192",
             "messages": [
                 {
                     "role": "system", 
-                    "content": "You are a professional engineering AI specialized in Thermodynamics. Analyze system code, textbook snapshots, tables, cycles, layouts, or data calculations comprehensively using precise Markdown notation."
+                    "content": "You are a professional engineering AI named KELVIN specialized in Thermodynamics. Analyze system code, layouts, cycles, or data calculations comprehensively using precise Markdown notation."
                 },
                 {
                     "role": "user",
-                    "content": content_payload
+                    "content": content_payload if image_data is None else user_message # fallback to string if text-only for compliance
                 }
             ]
         }
@@ -77,7 +68,7 @@ class handler(BaseHTTPRequestHandler):
             self.send_response(http_err.code)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({"error": f"API Error: {http_err.reason} - {error_body}"}).encode())
+            self.wfile.write(json.dumps({"error": f"Groq API Error: {http_err.reason} - {error_body}"}).encode())
         except Exception as e:
             self.send_response(500)
             self.send_header('Content-type', 'application/json')
