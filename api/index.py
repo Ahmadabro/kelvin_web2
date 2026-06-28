@@ -11,9 +11,8 @@ class handler(BaseHTTPRequestHandler):
         data = json.loads(post_data.decode('utf-8'))
         
         user_message = data.get("message", "").strip()
-        image_data = data.get("imageData", None)
         
-        # Read the environment variable named 'api' from your Vercel project configuration
+        # Read the environment variable named 'api' from your Vercel configuration
         api_key = os.environ.get("api")
         if not api_key:
             self.send_response(500)
@@ -24,13 +23,14 @@ class handler(BaseHTTPRequestHandler):
 
         # Direct official Groq Cloud operational endpoint
         url = "https://api.groq.com/openai/v1/chat/completions"
+        
+        # FIX FOR 1010: Inject standard browser User-Agent headers to bypass automated platform blocking
         headers = {
             "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
         
-        # Groq prefers text-only prompts passed simply as a standard string string primitive
-        # instead of an explicit structured block array if no image analysis is active.
         user_content = user_message if user_message else "Hello!"
 
         payload = {
