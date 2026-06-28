@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThermoAI — Interactive Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="background-decor blob-1"></div>
+    <div class="background-decor blob-2"></div>
+
+    <div class="chat-container">
+        <header>
+            <div class="logo-area">
+                <span class="fire-icon">🔥</span>
+                <div>
+                    <h1>ThermoAI</h1>
+                    <p>Advanced Thermodynamics Intelligence</p>
+                </div>
+            </div>
+            <div class="status-badge">
+                <span class="status-dot"></span> Online
+            </div>
+        </header>
+        
+        <div class="chat-box" id="chatBox">
+            <div class="message ai-message">
+                Hello! I am your Thermodynamics assistant. Ask me anything about cycles, state functions, entropy, or statistical mechanics!
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-wrapper">
+                <input type="text" id="userInput" placeholder="Ask a thermodynamics question (e.g., Explain the Carnot Cycle)..." autocomplete="off">
+                <button id="sendBtn" aria-label="Send Message">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
