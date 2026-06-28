@@ -10,8 +10,8 @@ class handler(BaseHTTPRequestHandler):
         data = json.loads(post_data.decode('utf-8'))
         
         user_message = data.get("message", "")
-        image_data = data.get("imageData", None)  # Captured base64 data url from client
-        audio_data = data.get("audioData", None)  # Captured audio string
+        image_data = data.get("imageData", None)
+        audio_data = data.get("audioData", None)
         
         api_key = os.environ.get("api")
         if not api_key:
@@ -21,31 +21,24 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"error": "Grok key config missing."}).encode())
             return
 
-        # --- PIPELINE A: HANDLE AUDIO RECORDING (SPEECH-TO-TEXT) ---
         if audio_data:
-            # Note: For production university scope project implementations, 
-            # you can forward this audio data block directly to a speech processing API.
-            # Here we provide a clean mockup echo pipeline to convert speech logic safely.
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({"transcription": "[Audio Sample Processed: Explain the First Law of Thermodynamics]"}).encode())
             return
 
-        # --- PIPELINE B: MULTIMODAL TEXT / IMAGE PROCESSING VIA GROK ---
         url = "https://api.x.ai/v1/chat/completions"
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
         
-        # Base structured message array configuration
         content_payload = []
         if user_message:
             content_payload.append({"type": "text", "text": user_message})
             
         if image_data:
-            # Validate and clean standard Data URI prefix formatting structures if present
             if "," in image_data:
                 image_data = image_data.split(",")[1]
             content_payload.append({
