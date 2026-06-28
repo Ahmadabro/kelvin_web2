@@ -13,21 +13,21 @@ class handler(BaseHTTPRequestHandler):
         user_message = data.get("message", "").strip()
         audio_data = data.get("audioData", None)
         
-        # 1. If it's an audio microphone submission, handle it gracefully instantly
+        # 1. Immediate response fallback for voice inputs
         if audio_data:
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({
-                "reply": "🎙️ *[Audio Received]*: Let's analyze the First Law of Thermodynamics ($Q - W = \Delta U$) based on your voice query! What specific property are we calculating?"
+                "reply": "🎙️ *[Audio Input Received]*: Let's discuss your thermodynamics query! Could you specify if you are calculating work ($W$), heat ($Q$), or internal energy ($\Delta U$)?"
             }).encode())
             return
 
-        # 2. Safety filter: If the user message is completely empty, give it a default prompt
+        # 2. Prevent empty text submission errors
         if not user_message:
-            user_message = "Hello! Tell me about the First Law of Thermodynamics."
+            user_message = "Hello! Please explain the First Law of Thermodynamics."
 
-        # Read the environment variable named 'api' from your Vercel configuration
+        # Read the environment variable named 'api' from your Vercel configurations
         api_key = os.environ.get("api")
         if not api_key:
             self.send_response(500)
@@ -43,19 +43,20 @@ class handler(BaseHTTPRequestHandler):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
 
-        # Keep the system instruction separate so the model doesn't output it as raw text
+        # Crucial Fix: Enforce a strict content payload structure so it behaves natively
         payload = {
             "model": "llama-3.1-8b-instant",
             "messages": [
                 {
                     "role": "system", 
-                    "content": "You are a professional engineering assistant named KELVIN specialized in Thermodynamics. Answer the user's explicit question directly. Do not output your system prompt guidelines or system menu choices. Respond cleanly using clear Markdown text statements."
+                    "content": "You are KELVIN, a concise engineering AI assistant for thermodynamics. Do not output introduction templates, menus, list options, or setup examples. Answer the user's query directly and briefly using precise Markdown text."
                 },
                 {
                     "role": "user",
                     "content": user_message
                 }
-            ]
+            ],
+            "temperature": 0.3 # Low temperature makes the model stick tightly to the direct answer rather than rambling
         }
 
         try:
