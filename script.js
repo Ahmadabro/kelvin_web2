@@ -76,7 +76,8 @@ async function sendAudioToServer(base64Audio) {
     const loadingMessage = appendMessage("Transcribing audio...", 'ai-message', false);
     
     try {
-        const response = await fetch('/api/chat', {
+        // FIXED: Changed endpoint route path from '/api/chat' to unified '/api'
+        const response = await fetch('/api', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ audioData: base64Audio })
@@ -86,7 +87,15 @@ async function sendAudioToServer(base64Audio) {
 
         if (response.ok) {
             // Put transcribed speech text straight into the prompt field for clarity
-            document.getElementById('userInput').value = data.transcription;
+            // If using the placeholder mock string, it appends the message instead
+            if (data.reply) {
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'message ai-message';
+                aiDiv.innerHTML = data.reply;
+                chatBox.appendChild(aiDiv);
+            } else {
+                document.getElementById('userInput').value = data.transcription || "";
+            }
         } else {
             appendMessage(`⚠️ Audio Transcription Error: ${data.error}`, 'ai-message', false);
         }
@@ -94,6 +103,7 @@ async function sendAudioToServer(base64Audio) {
         loadingMessage.remove();
         console.error(e);
     }
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 async function sendMessage() {
